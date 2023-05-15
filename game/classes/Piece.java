@@ -1,6 +1,7 @@
-package game3.classes;
-import game3.tools.MoveException;
-import game3.tools.Point;
+package com.game.classes;
+import com.game.tools.MoveException;
+import com.game.tools.Point;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -8,7 +9,7 @@ import java.util.Random;
 
 public abstract class Piece {
 
-    // constantes qui définit les déplacements
+    // constantes qui d�finit les d�placements
     public static final int ADVANCE = 1;
     public static final int BACK = 2;
     public static final int RIGHT = 3;
@@ -18,16 +19,16 @@ public abstract class Piece {
     // Directions est un tableau qui contient les mouvements possibles d'une piece
     public static final int[] DIRECTIONS = { ADVANCE, BACK, RIGHT, LEFT };
 
-    private Echiquier echiquier;
+    protected Echiquier echiquier;
 
     /**
-     * default power c'est la force de chaque animal qui peut etre zero par default
+     * default power c'est la force de chaque piece qui peut etre zero par default
      */
-    private int defaultPower;
-    private int power;
-    private int color;
-    private Point position;
-    private int specialMove;
+    protected int defaultPower;
+    protected int power;
+    protected int color;
+    protected Point position;
+    protected int specialMove;
 
     public Piece() {
 
@@ -41,7 +42,7 @@ public abstract class Piece {
         this.defaultPower = power;
         this.echiquier = ech;
     }
-
+    // les getters er setters de chque attribut
     public Echiquier getEchiquier() {
         return echiquier;
     }
@@ -83,7 +84,7 @@ public abstract class Piece {
     }
 
     /*
-     * on teste si il respecte les deplacement
+     * on teste si il respecte les moves
      */
     public int getSpecialMove() {
         return this.specialMove;
@@ -136,17 +137,17 @@ public abstract class Piece {
         return true;
     }
 
-
-
-     // permet de savoir la position de la piece
-
+    /**
+     *
+     * permet de savoir la position de la piece
+     */
     public Point whereAmI() {
         return this.position;
     }
 
     public boolean amAlive() {
-        /*
-         * permet de vérifier si
+        /**
+         *est une méthode de la classe "Piece" qui permet de vérifier si
          *la pièce est toujours en vie sur le plateau de jeu
          * a méthode vérifie si la liste de pièces "Player1" de l'instance "echiquier" contient la pièce.
          * Sinon, la méthode vérifie si la liste de pièces "Player2" de l'instance "echiquier" contient la pièce.
@@ -162,7 +163,7 @@ public abstract class Piece {
     }
 
     public List<Point> getPossilesMoves() {
-        /*
+        /**
          * est une méthode de la classe "Piece" qui retourne une liste de tous les déplacements possibles pour la pièce en question sur le plateau de jeu.
          */
 
@@ -178,7 +179,7 @@ public abstract class Piece {
 
         }
 
-        /*
+        /**
          * pour ne pas etre dans le trone d'un animal
          */
         if (this.echiquier.getTurn() == -1) {
@@ -222,7 +223,7 @@ public abstract class Piece {
 
     public Point getPositionIfCanMove(int direction, int nbrCase) throws MoveException {
         /**
-         *est une méthode qui renvoie la position d'une pièce
+         *est une méthode qui renvoie la position d'une pièce d'un jeu d'échecs chinois,
          *  si elle peut se déplacer dans une certaine direction d'un certain nombre de cases.
          */
 
@@ -260,8 +261,9 @@ public abstract class Piece {
 
         /**
          * Si la nouvelle position est sur l'eau, la méthode vérifie si la pièce peut effectuer
-         * un mouvement spécial (si elle est un Rat ou un Lion ou tigre), dans le cas contraire elle déclenche une exception
+         * un mouvement spécial (si elle est un Rat ou un Lion), dans le cas contraire elle déclenche une exception
          */
+
 
         if (echiquier.isPointWater(newPosition)) {
             /**
@@ -298,7 +300,6 @@ public abstract class Piece {
                 throw new MoveException();
             }
         }
-
         // Ce code vérifie si la nouvelle position est en dehors de
         // l'échiquier en appelant la méthode isPointInEchiquier de l'objet echiquier
 
@@ -357,7 +358,7 @@ public abstract class Piece {
 
     public void movePiece(int direction, int nbrCase) throws MoveException {
         /**
-         * apres le choix de piece on va le deplacer et synchro avec echiquier pour la
+         * apres le choix de piece on va le deplacer & synchro with echiquier pour la
          * mise ajour
          */
 
@@ -372,8 +373,8 @@ public abstract class Piece {
 
         this.position = newPostion;
 
-        /*
-         * point on teste si le nouveau deplacement si oui set power to zero
+        /***
+         * @param point on teste si le nouveau deplacement si oui set power to zero
          *              sinon default power;
          */
         System.out.println("Player" + echiquier.getTurn() + " Piece " + this.pieceIcon() + " moved From"
@@ -425,10 +426,24 @@ public abstract class Piece {
     public String pieceIcon() {
         String namClass = this.getClass().getSimpleName().substring(0, 3);
         if (this.color == Color.BLANC) {
-            return namClass + " B";
+            return namClass + " 1";
         } else {
-            return namClass + " N";
+            return namClass + " 2";
         }
     }
+
+    /******************************
+     *
+     */
+    public Point getDestination(Piece choosenPiece, int direction) {
+        Point currentPosition = choosenPiece.getPosition();
+        Point destination = null;
+        // ... Reste du code de la méthode ...
+        return destination;
+    }
+// les methodes ajouteess
+
+
+
 
 }
