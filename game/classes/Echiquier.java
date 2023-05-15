@@ -1,8 +1,13 @@
 package com.game.classes;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.sql.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.game.tools.Point;
 
@@ -10,6 +15,7 @@ public class Echiquier {
     private static Echiquier echiquier;
     //crée une liste vide appelée "player1" qui contiendra les pièces du joueur 1.
     private List<Piece> player1 = new ArrayList<Piece>();
+
     private List<Piece> player2 = new ArrayList<Piece>();
     private int turn = -1;// -1-->player 1 , 1--->player 2
     //crée une liste vide appelée "listPiegePlayer1" qui contiendra les emplacements des pièges du joueur 1
@@ -17,15 +23,25 @@ public class Echiquier {
     private List<Point> listPiegePlayer2 = new ArrayList<Point>();
     //crée une liste vide appelée "listWaterPlace" qui contiendra les emplacements des points d'eau sur le plateau.
     private List<Point> listWaterPlace = new ArrayList<Point>();
+    private Connection con;
+    private Statement st;
 
-    /**
-     * TODO ajuter les places du trone
-     */
-
-    /**
-     * il faut instancier les postion ici dans le constructeur
-     */
-    private Echiquier() {
+// constructeur
+    public Echiquier() {
+// execption pour tester la connection
+        try {
+            // apeel au Driver
+            Class.forName("com.mysql.jdbc.Driver");
+            // con pour se connecter a ma base de donnee(jeu xou dou qi contenat les tables necessaires
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/jeu xou dou qi", "root", "");
+            // creer statement
+            st = con.createStatement();
+            // si vous etes connectes on affiche message de bienvenue
+            System.out.println("*********************************Bienvenue <_>,votre connection est bien connecte !! ******************************************");
+        } catch (Exception ex) {
+            // sinon en declanche un erreur
+            System.out.println("Error" + ex);
+        }
         //crée une nouvelle pièce "lionB" en utilisant la classe "Lion", en lui attribuant power de 7,
         // color -1, une position de départ de (0,6), special mouvement 2 et une
         // référence à l'échiquier sur lequel la pièce est placée.
@@ -40,9 +56,10 @@ public class Echiquier {
         Point piege1B = new Point(0, 2);
         Point piege2B = new Point(1, 3);
         Point piege3B = new Point(0, 4);
-        // TODO ajoute emplacement du trone point(0,3);
 
-        //on ajoute les pièces du joueur 1 à la liste "player1"
+
+
+//on ajoute les pièces du joueur 1 à la liste "player1"
 
         player1.add(elephantB);
         player1.add(chienB);
@@ -52,9 +69,7 @@ public class Echiquier {
         player1.add(chatB);
         player1.add(loupB);
         player1.add(lionB);
-
         //créent  les emplacements des pièges du joueur 1.
-
         listPiegePlayer1.add(piege1B);
         listPiegePlayer1.add(piege3B);
         listPiegePlayer1.add(piege2B);
@@ -70,7 +85,8 @@ public class Echiquier {
         Point piege1N = new Point(8, 4);
         Point piege2N = new Point(7, 3);
         Point piege3N = new Point(8, 2);
-        // TODO ajoute emplacement du trone point(0,3);
+
+
 
         player2.add(elephantN);
         player2.add(chienN);
@@ -84,8 +100,6 @@ public class Echiquier {
         listPiegePlayer2.add(piege1N);
         listPiegePlayer2.add(piege3N);
         listPiegePlayer2.add(piege2N);
-
-
         //créent les emplacements des points d'eau et les ajoutent à la liste "listWaterPlace".
         //(la riviere)
         Point water1 = new Point(3, 1);
@@ -100,8 +114,7 @@ public class Echiquier {
         Point water10 = new Point(4, 5);
         Point water11 = new Point(5, 4);
         Point water12 = new Point(5, 5);
-
-        //créent les emplacements des points d'eau et les ajoutent à la liste "listWaterPlace".
+        //créent les emplacements des points d'eau et les ajoutent à la liste "listWaterPlace"
         listWaterPlace.add(water12);
         listWaterPlace.add(water11);
         listWaterPlace.add(water10);
@@ -116,7 +129,6 @@ public class Echiquier {
         listWaterPlace.add(water1);
 
     }
-
     //qui retourne l'instance unique de l'échiquier. Cette méthode suit également le modèle de conception "Singleton" en s'assurant qu'une seule instance de la
     // classe "Echiquier" peut être créée
     public static Echiquier getInstance() {
@@ -172,7 +184,6 @@ public class Echiquier {
     public void setListWaterPlace(List<Point> listWaterPlace) {
         this.listWaterPlace = listWaterPlace;
     }
-
     //Cette méthode est utilisée pour changer le tour des joueurs. Elle bascule simplement entre les valeurs 1 et -1 pour identifier
     // le joueur en cours. Si le joueur actuel a perdu, la méthode affiche, un message indiquant qu'il a perdu et quitte le jeu.
     public void switchPlayer() {
@@ -188,40 +199,28 @@ public class Echiquier {
         /**
          * respecter les dimesntion du echiquier sinon declancher une exception dans
          * piece
-         *
-         * @param un Point
          */
 
         return (position.getX() >= 0 && position.getX() <= 8) && (position.getY() >= 0 && position.getY() <= 6);
     }
-
     //Cette méthode vérifie si un point est situé sur une case d'eau. Elle prend en entrée un objet Point et retourne true si le point est situé sur une case d'eau, et false sinon.
+
     public boolean isPointWater(Point position) {
-        /**
-         * @param point savoir si une du water test suur la liste
-         */
+
 
         return listWaterPlace.contains(position);
     }
-
     //Cette méthode vérifie si un point est situé sur un piège. Elle prend en entrée un objet Point et retourne true si le point est situé sur un piège, et false sinon
     public boolean isPiege(Point posiPoint) {
-        /**
-         * @param un point test sur la list pour rendre power zero
-         */
+
         if (turn == -1) {
             return listPiegePlayer2.contains(posiPoint);
         } else {
             return listPiegePlayer1.contains(posiPoint);
         }
     }
-
     //Cette méthode vérifie si le joueur en cours a perdu. Elle vérifie si le joueur a encore des pièces et si le trône est toujours en sécurité. Si le joueur a perdu, la méthode retourne true, sinon elle retourne false
     public boolean isLose() {
-        /**
-         * pour chaque tour de switch user on va teste list ds pices ou la trone still
-         * existe
-         */
 
         if (turn == -1) {
             if (this.player1.size() == 0 || !this.isTroneGood()) {
@@ -241,25 +240,17 @@ public class Echiquier {
         }
 
     }
-
     //Cette méthode vérifie si le trône est en sécurité. Si le trône est occupé par une pièce ennemie ou s'il est situé sur une case d'eau, la méthode retourne false, sinon elle retourne true.
     public boolean isTroneGood() {
-        /**
-         * on va teste ou on va mettre un point si adversaire attient l'autre va perdu
-         * on va tester le point du trone is Vide pour chaque joueur
-         *
-         */
+
         if (turn == -1) {
-            /**
-             * TODO met la point du trone pour chaque user
-             */
+
             return isPointVide(new Point(0, 3));
         } else {
             return isPointVide(new Point(8, 3));
         }
 
     }
-
     //Cette méthode vérifie si un point donné est vide, c'est-à-dire s'il n'y a pas de pièce sur ce point. Elle prend en entrée un objet Point et retourne true si le point est vide, et false sinon.
     public boolean isPointVide(Point pointTest) {
         /**
@@ -283,13 +274,9 @@ public class Echiquier {
 
         return isVide;
     }
-
     //Cette méthode vérifie si un point donné contient une pièce appartenant au joueur en cours. Elle prend en entrée un objet Point et retourne true si le point contient une pièce appartenant au joueur en cours, et false sinon
     public boolean isThereMyPiece(Point pointTest) {
-        /**
-         * @param Point si le point est vide apres l'iteration du listPiece et sa
-         *              position
-         */
+
         boolean isVide = true;
         if (this.turn == -1) {
             for (Piece point : player1) {
@@ -312,10 +299,7 @@ public class Echiquier {
 
     //Cette méthode choisit une pièce à partir de son emplacement sur le plateau. Elle prend en entrée un objet Point et retourne l'objet Piece correspondant à l'emplacement donné.
     public Piece choosePieceAt(Point point) {
-        /**
-         * pour chosir une piece pour faire les traimtment et sedeplacer sinon on
-         * declanche une exception s'i existe pas
-         */
+
 
         Piece piece = null;
         if (turn == -1) {
@@ -339,7 +323,6 @@ public class Echiquier {
         return piece;
 
     }
-
     //Cette méthode supprime une pièce du plateau de jeu. Elle prend en entrée un objet Piece à supprimer
     public void removePiece(Piece pieceRmv) {
         /**
@@ -354,7 +337,6 @@ public class Echiquier {
         this.player2.remove(pieceRmv);
 
     }
-
     //Cette méthode met à jour la position des pièces sur le plateau.
     public void updatePosition() {
         /***
@@ -363,7 +345,6 @@ public class Echiquier {
          */
     }
 
-    //Cette méthode affiche le plateau de jeu sur la console
     public void showEchiquier() {
         /**
          * pour afficher la console TODO met la console d'affichage
@@ -417,14 +398,11 @@ public class Echiquier {
             System.out.println();
             // System.out.println("---------------------------------------------------------");
         }
-        System.out.println("*******piece Restant*******player -1 : "+this.player1.size()+" ************************player 1:"+this.player2.size()+"********************************************************");
+        System.out.println("*******piece Restant*******player -1 : "+this.player1.size()+"******************************************************** player 1:"+this.player2.size()+"********************************************************");
     }
-
     //permet de retourner la pièce qui est sur une case donnée
     public Piece getPieceAt(Point pointTest) {
-        /**
-         * @param point pour facilter traitement de deplacement
-         */
+
 
         for (Piece it : player1) {
             if (it.getPosition().equals(pointTest)) {
@@ -440,7 +418,6 @@ public class Echiquier {
 
         return null;
     }
-
     // retourne la liste des pièces du joueur dont c'est le tour.
     public List<Piece> getPieceByTurn() {
         if (this.turn == -1) {
@@ -462,7 +439,6 @@ public class Echiquier {
 
         return choosenPiece;
     }
-
     //permet de faire jouer un joueur au hasard en choisissant une pièce au hasard et en lui faisant effectuer un déplacement aléatoire
     public void randomTurn() {
         if (this.getTurn() == -1) {
@@ -475,5 +451,57 @@ public class Echiquier {
             randPiece.randomMove();
         }
     }
+
+    public Piece getPieceAt(int row, int col) {
+
+        return null;
+    }
+    public List<Piece> getPieces() {
+        List<Piece> pieces = new ArrayList<Piece>();
+        pieces.addAll(this.player1);
+        pieces.addAll(this.player2);
+        return pieces;
+    }
+    public boolean estDansEau(Point point) {
+        for (Point waterPlace : this.listWaterPlace) {
+            if (point.equals(waterPlace)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+    //***********************************************
+
+    public void enregistrerDeplacement(Piece piece, Point depart, Point arrivee) {
+        try {
+            // Établir une connexion à la base de données
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/jeu xou dou qi", "root", "");
+
+            // Préparer la requête SQL pour insérer le déplacement dans la base de données
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO deplacements (piece, depart_x, depart_y, arrivee_x, arrivee_y) VALUES (?, ?, ?, ?, ?)");
+            preparedStatement.setString(1, piece.toString());
+            preparedStatement.setInt(2, depart.getX());
+            preparedStatement.setInt(3, depart.getY());
+            preparedStatement.setInt(4, arrivee.getX());
+            preparedStatement.setInt(5, arrivee.getY());
+
+            // Exécuter la requête SQL
+            preparedStatement.executeUpdate();
+
+
+            // Fermer la connexion à la base de données
+            connection.close();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+/***************/
+
 
 }
